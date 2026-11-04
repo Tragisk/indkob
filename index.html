@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Indkøb</title>
+<meta name="theme-color" content="#321134">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Indkøb">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#321134; --brand-2:#4a2050; --on-brand:#ffffff; --fill:#321134;
+  --bg:#f5eff4; --surface:#ffffff; --ink:#24101f; --muted:#7b6579;
+  --line:#e7dce5; --tint:#efe4ee; --tint-ink:#321134;
+  --done:#a08f9e; --danger:#a3243b; --shadow:0 1px 2px rgba(50,17,52,.06),0 8px 24px rgba(50,17,52,.08);
+  --r:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --brand:#321134; --brand-2:#4a2050; --on-brand:#ffffff;
+    --fill:#743a7b;
+    --bg:#140913; --surface:#211220; --ink:#f3e9f2; --muted:#ad97ab;
+    --line:#3a2539; --tint:#2e1a2e; --tint-ink:#e6c9e8;
+    --done:#7c6a7a; --danger:#f08aa0; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --fill:#743a7b;
+  --bg:#140913; --surface:#211220; --ink:#f3e9f2; --muted:#ad97ab;
+  --line:#3a2539; --tint:#2e1a2e; --tint-ink:#e6c9e8;
+  --done:#7c6a7a; --danger:#f08aa0; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px; line-height:1.35; -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #b98bbd; outline-offset:2px}
+.hidden{display:none !important}
+
+/* header */
+header.top{
+  background:var(--brand); color:var(--on-brand);
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 22px;
+  border-radius:0 0 26px 26px;
+}
+.top-row{max-width:620px;margin:0 auto;display:flex;align-items:center;gap:8px}
+.top h1{font-size:2.3rem;line-height:1;margin:0;font-weight:800;letter-spacing:-.02em;flex:1}
+.top .sub{max-width:620px;margin:8px auto 0;opacity:.78;font-size:.95rem}
+.icon-btn{
+  width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.1);
+  color:var(--on-brand);display:grid;place-items:center;flex:none;
+}
+.icon-btn[aria-pressed="true"]{background:#fff;color:var(--brand)}
+.icon-btn svg{width:22px;height:22px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#7fd6a2;display:inline-block;margin-right:6px;vertical-align:middle}
+.sync-dot.off{background:#e9b949}
+
+main{max-width:620px;margin:0 auto;padding:16px 16px 190px}
+
+/* buy again */
+.again{margin:4px 0 18px}
+.again h2,.section h2{font-size:.95rem;font-weight:700;color:var(--muted);margin:0 0 8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;
+  padding:8px 14px;font-size:.95rem;white-space:nowrap;min-height:40px;
+}
+.chip .plus{font-weight:800;color:var(--brand);margin-right:4px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip .plus{color:var(--tint-ink)}}
+
+/* list */
+.section{margin-bottom:18px}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:6px 8px 6px 6px;border-top:1px solid var(--line);min-height:58px}
+.item:first-child{border-top:0}
+.check{
+  width:46px;height:46px;flex:none;border:0;background:transparent;display:grid;place-items:center;border-radius:12px;
+}
+.check span{
+  width:26px;height:26px;border-radius:50%;border:2.5px solid var(--brand);display:grid;place-items:center;transition:background .15s;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .check span{border-color:var(--tint-ink)}}
+.check svg{width:15px;height:15px;opacity:0;color:#fff}
+.item.done .check span{background:var(--fill);border-color:var(--fill)}
+.item.done .check svg{opacity:1}
+.body{flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:8px 0;display:block}
+.name{font-weight:600;font-size:1.05rem;overflow-wrap:anywhere}
+.qty{display:inline-block;margin-left:6px;background:var(--tint);color:var(--tint-ink);font-weight:700;font-size:.82rem;padding:2px 8px;border-radius:999px;vertical-align:2px}
+.note{color:var(--muted);font-size:.9rem;margin-top:2px;overflow-wrap:anywhere}
+.who{
+  flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+  font-size:.78rem;font-weight:800;background:var(--tint);color:var(--tint-ink);margin-right:6px;
+}
+.who.other{background:var(--fill);color:#fff}
+.item.done .name{text-decoration:line-through;color:var(--done);font-weight:500}
+.item.done .qty{opacity:.6}
+
+.basket-head{display:flex;align-items:center;justify-content:space-between;margin:26px 0 8px}
+.basket-head h2{margin:0;font-size:.95rem;font-weight:700;color:var(--muted)}
+.link-btn{border:0;background:transparent;color:var(--brand);font-weight:700;padding:10px 4px;min-height:44px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .link-btn{color:var(--tint-ink)}}
+.empty{text-align:center;color:var(--muted);padding:40px 16px}
+.empty strong{display:block;color:var(--ink);font-size:1.2rem;margin-bottom:4px}
+
+/* add bar */
+.addbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:var(--surface);border-top:1px solid var(--line);
+  padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px);
+  box-shadow:0 -8px 24px rgba(50,17,52,.08);
+}
+.addbar-inner{max-width:620px;margin:0 auto}
+.suggest{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px;scrollbar-width:none}
+.suggest::-webkit-scrollbar{display:none}
+.suggest .chip{min-height:36px;padding:6px 12px;font-size:.9rem}
+.extra{display:grid;grid-template-columns:auto 1fr 1.4fr;gap:8px;margin-bottom:8px}
+.catpick{
+  border:0;border-radius:12px;background:var(--fill);color:#fff;font-weight:700;padding:0 12px;min-height:44px;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis;
+}
+.catpick small{font-weight:500;opacity:.75}
+.field{
+  width:100%;min-height:44px;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 12px;font-size:16px;
+}
+.field:focus{border-color:var(--fill);outline:none}
+.main-row{display:flex;gap:8px}
+.main-row .field{min-height:52px;font-size:17px}
+.add-btn{
+  flex:none;border:0;border-radius:12px;background:var(--fill);color:#fff;font-weight:700;padding:0 18px;min-height:52px;
+}
+.add-btn:disabled{opacity:.45}
+
+/* sheets */
+.scrim{position:fixed;inset:0;background:rgba(20,6,20,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{
+  background:var(--surface);width:100%;max-width:620px;border-radius:22px 22px 0 0;
+  padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px);max-height:88vh;overflow:auto;
+  animation:up .2s ease-out;
+}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}.check span{transition:none}}
+.sheet h3{margin:0 0 14px;font-size:1.35rem;font-weight:800}
+.sheet label{display:block;font-weight:600;font-size:.9rem;color:var(--muted);margin:12px 0 6px}
+.catgrid{display:flex;flex-wrap:wrap;gap:8px}
+.catgrid button{
+  border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 14px;min-height:44px;font-weight:600;
+}
+.catgrid button[aria-pressed="true"]{background:var(--fill);border-color:var(--fill);color:#fff}
+.row2{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.sheet-actions{display:flex;gap:10px;margin-top:20px}
+.btn{flex:1;border:0;border-radius:12px;min-height:50px;font-weight:700;background:var(--fill);color:#fff}
+.btn.ghost{background:var(--tint);color:var(--tint-ink)}
+.btn.danger{background:transparent;color:var(--danger);border:1.5px solid currentColor;flex:none;padding:0 16px}
+.newcat{display:flex;gap:8px;margin-top:12px}
+.newcat .btn{flex:none;padding:0 16px;min-height:44px}
+.catrow{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--line)}
+.catrow:first-of-type{border-top:0}
+.catrow input{flex:1}
+.mini{width:40px;height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);display:grid;place-items:center;flex:none}
+.mini:disabled{opacity:.3}
+.mini.del{color:var(--danger)}
+.who-pick{display:flex;gap:10px}
+.who-pick button{flex:1;min-height:56px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);font-weight:700;font-size:1.1rem}
+.who-pick button[aria-pressed="true"]{background:var(--fill);color:#fff;border-color:var(--fill)}
+.hint{color:var(--muted);font-size:.9rem;margin:6px 0 0}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 150px);z-index:50;
+  background:#24101f;color:#fff;border-radius:14px;padding:6px 6px 6px 16px;display:flex;align-items:center;gap:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 32px);font-size:.95rem;
+}
+.toast button{border:0;background:#fff;color:#321134;border-radius:10px;padding:0 14px;min-height:40px;font-weight:800}
+.toast.plain{padding:12px 16px}
+
+/* gate */
+.gate{max-width:420px;margin:0 auto;padding:40px 20px}
+.gate h2{font-size:1.6rem;margin:0 0 8px}
+.gate p{color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <h1>Indkøb</h1>
+    <button class="icon-btn hidden" id="wakeBtn" aria-pressed="false" aria-label="Hold skærmen tændt" title="Hold skærmen tændt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <button class="icon-btn" id="menuBtn" aria-label="Indstillinger" title="Indstillinger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+  <div class="sub" id="sub">Henter listen…</div>
+</header>
+
+<main id="app">
+  <section class="again hidden" id="again">
+    <h2>Køb igen</h2>
+    <div class="chips" id="againChips"></div>
+  </section>
+  <div id="list"></div>
+  <div id="basket"></div>
+</main>
+
+<div class="gate hidden" id="gate">
+  <h2>Åbn jeres link</h2>
+  <p>Listen åbnes via det delte link, som slutter med et # og en kode. Indsæt linket her, hvis siden er åbnet uden.</p>
+  <input class="field" id="gateInput" placeholder="Indsæt link eller kode" autocomplete="off">
+  <div class="sheet-actions"><button class="btn" id="gateBtn">Åbn listen</button></div>
+  <p class="hint" id="gateMsg"></p>
+</div>
+
+<div class="addbar hidden" id="addbar">
+  <div class="addbar-inner">
+    <div class="suggest hidden" id="suggest"></div>
+    <div class="extra hidden" id="extra">
+      <button class="catpick" id="catpick" type="button"></button>
+      <input class="field" id="qtyIn" placeholder="Antal" maxlength="30" autocomplete="off">
+      <input class="field" id="noteIn" placeholder="Note" maxlength="200" autocomplete="off">
+    </div>
+    <form class="main-row" id="addForm">
+      <input class="field" id="nameIn" placeholder="Tilføj vare…" maxlength="120" autocomplete="off" enterkeyhint="done" aria-label="Vare">
+      <button class="add-btn" id="addBtn" disabled>Tilføj</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
+<script>
+(() => {
+const SB_URL = "https://jmkicrzqmzbetzzjoqtd.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impta2ljcnpxbXpiZXR6empvcXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1MzY1NDUsImV4cCI6MjEwODExMjU0NX0.BHSSKBFBVZ0qESq-LFkUccpCFRsbhq50DQi4bxK6jx4";
+const NAMES = ["Chris", "Louise"];
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const svgCheck = () => { const s = document.createElementNS("http://www.w3.org/2000/svg","svg"); s.setAttribute("viewBox","0 0 24 24"); s.setAttribute("fill","none"); s.setAttribute("stroke","currentColor"); s.setAttribute("stroke-width","3.5"); s.setAttribute("stroke-linecap","round"); s.setAttribute("stroke-linejoin","round"); const p=document.createElementNS("http://www.w3.org/2000/svg","path"); p.setAttribute("d","M5 12.5l4.5 4.5L19 7.5"); s.append(p); return s; };
+const keyOf = s => (s || "").trim().replace(/\s+/g, " ").toLowerCase();
+
+/* ---------- secret ---------- */
+function readSecret(){
+  const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, "")).trim();
+  if (/^[A-Za-z0-9_-]{16,}$/.test(fromHash)) { store.set("indkob-secret", fromHash); return fromHash; }
+  const saved = store.get("indkob-secret");
+  if (saved) { history.replaceState(null, "", "#" + saved); return saved; }
+  return null;
+}
+let SECRET = readSecret();
+let me = store.get("indkob-me");
+
+/* ---------- state ---------- */
+let cats = [], items = [], memory = [];
+let sb = null, channel = null, live = false;
+let draftCat = null, draftCatManual = false;
+
+const catById = id => cats.find(c => c.id === id);
+const otherCat = () => cats.find(c => c.is_other);
+const catName = id => (catById(id) || otherCat() || {name:"Andet"}).name;
+
+/* ---------- server ---------- */
+async function rpc(fn, args){
+  const { data, error } = await sb.rpc(fn, Object.assign({ p_secret: SECRET }, args || {}));
+  if (error) throw error;
+  return data;
+}
+let loading = null;
+async function load(){
+  if (loading) return loading;
+  loading = (async () => {
+    try {
+      const s = await rpc("indkob_state");
+      cats = s.categories || []; items = s.items || []; memory = s.memory || [];
+      render();
+    } catch (e) {
+      if (String(e.message || "").includes("Ugyldigt link")) { showGate("Linket virker ikke. Tjek, at hele koden er med."); }
+      else toast("Kunne ikke hente listen. Tjek forbindelsen.");
+    } finally { loading = null; }
+  })();
+  return loading;
+}
+let reloadTimer = null;
+function scheduleReload(){ clearTimeout(reloadTimer); reloadTimer = setTimeout(load, 250); }
+function ping(){ if (channel && live) channel.send({ type:"broadcast", event:"changed", payload:{ by: me } }).catch(()=>{}); }
+async function mutate(fn, args, optimistic){
+  if (optimistic) { optimistic(); render(); }
+  try { const r = await rpc(fn, args); ping(); return r; }
+  catch(e){ toast("Kunne ikke gemme. Prøv igen."); await load(); throw e; }
+}
+async function sha(s){
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,"0")).join("");
+}
+async function connectLive(){
+  try {
+    const name = "indkob-" + (await sha(SECRET)).slice(0, 24);
+    channel = sb.channel(name, { config: { broadcast: { self: false } } });
+    channel.on("broadcast", { event: "changed" }, scheduleReload);
+    channel.subscribe(status => { live = status === "SUBSCRIBED"; renderSub(); if (live) scheduleReload(); });
+  } catch(e){ live = false; renderSub(); }
+}
+
+/* ---------- auto category ---------- */
+const KEYWORDS = [
+  ["Frost", ["frost","frossen","frosne","is","ispinde","pommes"]],
+  ["Baby", ["ble","bleer","baby","vatrondel","vatpind","vådservietter","modermælk"]],
+  ["Husholdning", ["toiletpapir","køkkenrulle","opvask","sæbe","affaldspose","skraldepose","rengøring","vaskepulver","vaskemiddel","skyllemiddel","alufolie","bagepapir","fryseposer","husholdningsfilm","batterier","tandpasta","tandbørste","shampoo","balsam","deodorant","plaster","servietter","stearinlys"]],
+  ["Kolonial", ["dåse","konserves","chips","pesto","sovs","sauce"]],
+  ["Frugt & grønt", ["æble","banan","pære","appelsin","citron","lime","tomat","agurk","salat","løg","hvidløg","kartof","gulerød","gulerødder","peberfrugt","squash","broccoli","kål","spinat","avocado","melon","drue","bær","svampe","champignon","selleri","porre","ingefær","persille","basilikum","dild","koriander","mango","ananas","kiwi","dadler","rødbede","aubergine","blomkål","radiser","clementin","mandarin","blommer","fersken","nektarin"]],
+  ["Mejeri & køl", ["mælk","ost","yoghurt","skyr","fløde","smør","æg","creme fraiche","cremefraiche","feta","halloumi","mozzarella","parmesan","kvark","hummus","margarine","cheddar","mascarpone","ricotta"]],
+  ["Kød & fisk", ["kød","fars","kylling","laks","fisk","bacon","skinke","pølse","pølser","pålæg","rejer","torsk","tun","frikadelle","frikadeller","bøf","bøffer","burger","medister","leverpostej","salami","kalkun","mørbrad","flæsk"]],
+  ["Brød", ["brød","boller","bolle","toast","tortilla","tortillas","pita","baguette","knækbrød","rundstykker","croissant","wraps"]],
+  ["Bagning & krydderier", ["mel","gær","sukker","bagepulver","vanilje","kanel","krydderi","krydderimix","peber","salt","spidskommen","gurkemeje","paprika","karry","oregano","timian","chokolade","honning","natron","bouillon"]],
+  ["Drikkevarer", ["sodavand","cola","juice","saft","vand","øl","vin","kaffe","te","kakao","danskvand","smoothie"]],
+  ["Kolonial", ["pasta","ris","nudler","müsli","musli","havregryn","cornflakes","marmelade","nutella","peanuts","nødder","mandler","nachos","olie","eddike","ketchup","sennep","mayo","tyggegummi","slik","kiks","baked beans","linser","kikærter","couscous","bulgur","quinoa","popcorn","rosiner","majs","bønner"]]
+];
+// korte ord skal matche hele ord, mellemlange ord starten/slutningen af et ord (sammensatte ord), lange ord hvor som helst
+function wordHit(k, words, w){
+  if (w.includes(" ")) return k.includes(w);
+  if (w.length <= 2) return words.includes(w);
+  if (w.length <= 4) return words.some(x => x.startsWith(w) || x.endsWith(w));
+  return k.includes(w);
+}
+function guessCat(name){
+  const k = keyOf(name);
+  if (!k) return null;
+  const exact = memory.find(m => m.key === k);
+  if (exact && catById(exact.category_id)) return exact.category_id;
+  const pref = memory.find(m => m.key.length >= 3 && (k.startsWith(m.key + " ") || m.key.startsWith(k + " ")) && catById(m.category_id));
+  if (pref) return pref.category_id;
+  const words = k.split(" ");
+  for (const [cname, list] of KEYWORDS){
+    if (list.some(w => wordHit(k, words, w))) {
+      const c = cats.find(c => c.name.toLowerCase() === cname.toLowerCase());
+      if (c) return c.id;
+    }
+  }
+  return null;
+}
+const QTY_RE = /\s+((?:x|×)\s?\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?\s?(?:x|×|stk\.?|g|gr|kg|l|ml|dl|cl|pk\.?|pakker?|poser?|dåser?|bakker?|flasker?|ruller?|bdt\.?))$/i;
+function splitQty(raw){
+  const m = raw.match(QTY_RE);
+  if (!m) return { name: raw.trim(), qty: "" };
+  return { name: raw.slice(0, m.index).trim(), qty: m[1].replace(/^x\s?/i, "× ").trim() };
+}
+
+/* ---------- render ---------- */
+function initials(n){ return (n || "?").trim().charAt(0).toUpperCase(); }
+function renderSub(){
+  const left = items.filter(i => !i.checked).length;
+  const txt = left === 0 ? "Alt er købt" : left === 1 ? "1 vare tilbage" : left + " varer tilbage";
+  const sub = $("sub"); sub.textContent = "";
+  sub.append(h("span", { class: "sync-dot" + (live ? "" : " off"), title: live ? "Opdateres live" : "Ikke live – opdaterer ved åbning" }), txt + (me ? "  ·  du er " + me : ""));
+}
+function itemRow(it){
+  const mine = it.added_by && it.added_by === me;
+  return h("div", { class: "item" + (it.checked ? " done" : "") },
+    h("button", { class: "check", "aria-label": (it.checked ? "Fjern afkrydsning: " : "Kryds af: ") + it.name, "aria-pressed": it.checked ? "true" : "false",
+      onclick: () => toggle(it) }, h("span", null, svgCheck())),
+    h("button", { class: "body", onclick: () => openEdit(it) },
+      h("div", { class: "name" }, it.name, it.qty ? h("span", { class: "qty" }, it.qty) : null),
+      it.note ? h("div", { class: "note" }, it.note) : null),
+    it.added_by ? h("span", { class: "who" + (mine ? "" : " other"), title: "Tilføjet af " + it.added_by }, initials(it.added_by)) : null
+  );
+}
+function render(){
+  renderSub();
+  const open = items.filter(i => !i.checked);
+  const done = items.filter(i => i.checked).sort((a,b) => (b.checked_at||"").localeCompare(a.checked_at||""));
+  const list = $("list"); list.textContent = "";
+  const order = cats.slice().sort((a,b) => a.sort - b.sort);
+  const known = new Set(cats.map(c => c.id));
+  for (const c of order){
+    const rows = open.filter(i => (known.has(i.category_id) ? i.category_id : (otherCat()||{}).id) === c.id);
+    if (!rows.length) continue;
+    list.append(h("section", { class: "section" }, h("h2", null, c.name + " (" + rows.length + ")"), h("div", { class: "card" }, rows.map(itemRow))));
+  }
+  if (!open.length) list.append(h("div", { class: "empty" }, h("strong", null, done.length ? "Alt er i kurven" : "Listen er tom"), "Tilføj en vare nederst eller tryk på en af jeres faste varer."));
+
+  const basket = $("basket"); basket.textContent = "";
+  if (done.length){
+    basket.append(
+      h("div", { class: "basket-head" }, h("h2", null, "I kurven (" + done.length + ")"), h("button", { class: "link-btn", onclick: clearChecked }, "Ryd kurven")),
+      h("div", { class: "card" }, done.map(itemRow))
+    );
+  }
+  renderAgain();
+}
+function renderAgain(){
+  const onList = new Set(items.filter(i => !i.checked).map(i => keyOf(i.name)));
+  const picks = memory.filter(m => m.count > 0 && !onList.has(m.key)).slice(0, 14);
+  $("again").classList.toggle("hidden", !picks.length);
+  const box = $("againChips"); box.textContent = "";
+  picks.forEach(m => box.append(h("button", { class: "chip", onclick: () => addItem(m.name, "", "", m.category_id) }, h("span", { class: "plus" }, "+"), m.name)));
+}
+
+/* ---------- add bar ---------- */
+function updateDraft(){
+  const raw = $("nameIn").value;
+  const has = raw.trim().length > 0;
+  $("addBtn").disabled = !has;
+  $("extra").classList.toggle("hidden", !has);
+  if (!has){ draftCat = null; draftCatManual = false; $("suggest").classList.add("hidden"); return; }
+  if (!draftCatManual) draftCat = guessCat(splitQty(raw).name);
+  const cp = $("catpick"); cp.textContent = "";
+  cp.append(draftCat ? catName(draftCat) : "Andet", h("small", null, " ▾"));
+  // suggestions from memory
+  const k = keyOf(raw);
+  const sugg = k.length >= 2 ? memory.filter(m => m.key.includes(k) && m.key !== k).slice(0, 5) : [];
+  const sg = $("suggest"); sg.textContent = "";
+  sg.classList.toggle("hidden", !sugg.length);
+  sugg.forEach(m => sg.append(h("button", { class: "chip", type: "button", onclick: () => {
+    $("nameIn").value = m.name; draftCat = m.category_id; draftCatManual = true; updateDraft(); $("nameIn").focus();
+  } }, m.name)));
+}
+async function addItem(name, qty, note, catId){
+  const n = (name || "").trim(); if (!n) return;
+  const tmp = { id: "tmp-" + Math.random().toString(36).slice(2), name: n, qty: qty || null, note: note || null,
+    category_id: catId || (otherCat()||{}).id, added_by: me, checked: false, created_at: new Date().toISOString() };
+  try {
+    const r = await mutate("indkob_add", { p_name: n, p_qty: qty || null, p_note: note || null, p_category: catId || null, p_by: me },
+      () => items.push(tmp));
+    const idx = items.indexOf(tmp); if (idx >= 0) items[idx] = r;
+    const k = keyOf(n), m = memory.find(x => x.key === k);
+    if (m){ m.count++; m.category_id = r.category_id; } else memory.unshift({ key: k, name: n, category_id: r.category_id, count: 1 });
+    render();
+  } catch(e){}
+}
+$("nameIn").addEventListener("input", updateDraft);
+$("addForm").addEventListener("submit", ev => {
+  ev.preventDefault();
+  const { name, qty } = splitQty($("nameIn").value);
+  const q = $("qtyIn").value.trim() || qty;
+  addItem(name, q, $("noteIn").value.trim(), draftCat);
+  $("nameIn").value = ""; $("qtyIn").value = ""; $("noteIn").value = "";
+  draftCat = null; draftCatManual = false; updateDraft(); $("nameIn").focus();
+});
+$("catpick").addEventListener("click", () => openCatPicker(draftCat, id => { draftCat = id; draftCatManual = true; updateDraft(); }));
+
+/* ---------- actions ---------- */
+function toggle(it){
+  const val = !it.checked;
+  mutate("indkob_check", { p_id: it.id, p_checked: val, p_by: me }, () => {
+    it.checked = val; it.checked_by = val ? me : null; it.checked_at = val ? new Date().toISOString() : null;
+  }).catch(()=>{});
+}
+async function clearChecked(){
+  const gone = items.filter(i => i.checked);
+  if (!gone.length) return;
+  try {
+    const removed = await mutate("indkob_clear_checked", {}, () => { items = items.filter(i => !i.checked); });
+    toast(removed.length + (removed.length === 1 ? " vare ryddet" : " varer ryddet"), "Fortryd", () => restore(removed));
+  } catch(e){}
+}
+async function restore(rows){
+  try { await rpc("indkob_restore", { p_items: rows }); ping(); await load(); } catch(e){ toast("Kunne ikke fortryde."); }
+}
+async function deleteItem(it){
+  try {
+    const removed = await mutate("indkob_delete", { p_ids: [it.id] }, () => { items = items.filter(i => i.id !== it.id); });
+    toast(it.name + " slettet", "Fortryd", () => restore(removed));
+  } catch(e){}
+}
+
+/* ---------- sheets ---------- */
+function sheet(build){
+  const scrim = h("div", { class: "scrim", onclick: ev => { if (ev.target === scrim) close(); } });
+  const box = h("div", { class: "sheet", role: "dialog", "aria-modal": "true" });
+  const close = () => { scrim.remove(); document.removeEventListener("keydown", esc); };
+  const esc = ev => { if (ev.key === "Escape") close(); };
+  document.addEventListener("keydown", esc);
+  build(box, close);
+  scrim.append(box); document.body.append(scrim);
+  const f = box.querySelector("input,button"); if (f && f.tagName === "INPUT" && !matchMedia("(pointer:coarse)").matches) f.focus();
+  return close;
+}
+function catButtons(selected, onPick){
+  const grid = h("div", { class: "catgrid" });
+  cats.slice().sort((a,b)=>a.sort-b.sort).forEach(c => grid.append(h("button", { type: "button", "aria-pressed": c.id === selected ? "true" : "false", onclick: () => onPick(c.id) }, c.name)));
+  return grid;
+}
+function newCatRow(onCreated){
+  const inp = h("input", { class: "field", placeholder: "Ny kategori", maxlength: "40" });
+  const add = async () => {
+    const n = inp.value.trim(); if (!n) return;
+    try { const c = await rpc("indkob_category_add", { p_name: n }); ping(); await load(); onCreated && onCreated(c.id); }
+    catch(e){ toast("Kunne ikke oprette kategorien."); }
+  };
+  inp.addEventListener("keydown", ev => { if (ev.key === "Enter"){ ev.preventDefault(); add(); } });
+  return h("div", { class: "newcat" }, inp, h("button", { class: "btn", type: "button", onclick: add }, "Opret"));
+}
+function openCatPicker(selected, onPick){
+  sheet((box, close) => {
+    box.append(h("h3", null, "Vælg kategori"),
+      catButtons(selected, id => { onPick(id); close(); }),
+      newCatRow(id => { onPick(id); close(); }));
+  });
+}
+function openEdit(it){
+  sheet((box, close) => {
+    let cat = catById(it.category_id) ? it.category_id : (otherCat()||{}).id;
+    const nm = h("input", { class: "field", value: it.name, maxlength: "120" });
+    const q = h("input", { class: "field", value: it.qty || "", maxlength: "30", placeholder: "Fx 2 eller 800 g" });
+    const nt = h("input", { class: "field", value: it.note || "", maxlength: "200", placeholder: "Fx den økologiske" });
+    const grid = h("div");
+    const drawGrid = () => { grid.textContent = ""; grid.append(catButtons(cat, id => { cat = id; drawGrid(); })); };
+    drawGrid();
+    const meta = [];
+    if (it.added_by) meta.push("Tilføjet af " + it.added_by);
+    if (it.checked && it.checked_by) meta.push("lagt i kurven af " + it.checked_by);
+    box.append(
+      h("h3", null, "Ret vare"),
+      h("label", null, "Navn"), nm,
+      h("div", { class: "row2" }, h("div", null, h("label", null, "Antal"), q), h("div", null, h("label", null, "Note"), nt)),
+      h("label", null, "Kategori"), grid,
+      meta.length ? h("p", { class: "hint" }, meta.join(", ")) : null,
+      h("div", { class: "sheet-actions" },
+        h("button", { class: "btn danger", type: "button", onclick: () => { close(); deleteItem(it); } }, "Slet"),
+        h("button", { class: "btn", type: "button", onclick: async () => {
+          const n = nm.value.trim(); if (!n) return;
+          close();
+          try {
+            const r = await mutate("indkob_update", { p_id: it.id, p_name: n, p_qty: q.value.trim() || null, p_note: nt.value.trim() || null, p_category: cat },
+              () => { it.name = n; it.qty = q.value.trim() || null; it.note = nt.value.trim() || null; it.category_id = cat; });
+            const k = keyOf(n), m = memory.find(x => x.key === k);
+            if (m) m.category_id = r.category_id; else memory.push({ key:k, name:n, category_id:r.category_id, count:0 });
+          } catch(e){}
+        } }, "Gem"))
+    );
+  });
+}
+function openMenu(){
+  sheet((box, close) => {
+    const whoBox = h("div", { class: "who-pick" });
+    NAMES.forEach(n => whoBox.append(h("button", { type: "button", "aria-pressed": n === me ? "true" : "false", onclick: () => { setMe(n); close(); openMenu(); } }, n)));
+    const catList = h("div");
+    const sorted = cats.slice().sort((a,b)=>a.sort-b.sort);
+    const movable = sorted.filter(c => !c.is_other);
+    sorted.forEach(c => {
+      const inp = h("input", { class: "field", value: c.name, maxlength: "40", "aria-label": "Navn på kategori" });
+      inp.addEventListener("change", async () => {
+        const n = inp.value.trim(); if (!n || n === c.name) { inp.value = c.name; return; }
+        try { await rpc("indkob_category_rename", { p_id: c.id, p_name: n }); ping(); await load(); } catch(e){ toast("Navnet findes måske allerede."); inp.value = c.name; }
+      });
+      const idx = movable.indexOf(c);
+      const move = async dir => {
+        const arr = movable.slice(); const j = idx + dir; [arr[idx], arr[j]] = [arr[j], arr[idx]];
+        const ids = arr.map(x => x.id); const o = otherCat(); if (o) ids.push(o.id);
+        try { await rpc("indkob_category_reorder", { p_ids: ids }); ping(); await load(); close(); openMenu(); } catch(e){ toast("Kunne ikke flytte."); }
+      };
+      catList.append(h("div", { class: "catrow" }, inp,
+        c.is_other ? null : h("button", { class: "mini", type: "button", "aria-label": "Flyt op", disabled: idx === 0, onclick: () => move(-1) }, "↑"),
+        c.is_other ? null : h("button", { class: "mini", type: "button", "aria-label": "Flyt ned", disabled: idx === movable.length - 1, onclick: () => move(1) }, "↓"),
+        c.is_other ? null : h("button", { class: "mini del", type: "button", "aria-label": "Slet kategori " + c.name, onclick: async () => {
+          if (!confirm("Slet kategorien \"" + c.name + "\"? Varer i den flyttes til Andet.")) return;
+          try { await rpc("indkob_category_delete", { p_id: c.id }); ping(); await load(); close(); openMenu(); } catch(e){ toast("Kunne ikke slette."); }
+        } }, "✕")));
+    });
+    box.append(
+      h("h3", null, "Indstillinger"),
+      h("label", null, "Hvem er du på denne telefon?"), whoBox,
+      h("label", null, "Kategorier i butikkens rækkefølge"), catList,
+      newCatRow(() => { close(); openMenu(); }),
+      h("p", { class: "hint" }, "Andet ligger altid sidst og kan ikke slettes."),
+      h("label", null, "Del listen"),
+      h("button", { class: "btn ghost", type: "button", onclick: async () => {
+        const url = location.origin + location.pathname + "#" + SECRET;
+        try {
+          if (navigator.share) await navigator.share({ title: "Indkøb", url });
+          else { await navigator.clipboard.writeText(url); toast("Link kopieret"); }
+        } catch(e){}
+      } }, "Del eller kopiér link"),
+      h("p", { class: "hint" }, "Alle med linket kan se og rette listen. Del det kun med Louise."),
+      h("div", { class: "sheet-actions" }, h("button", { class: "btn ghost", type: "button", onclick: close }, "Luk"))
+    );
+  });
+}
+function setMe(n){ me = n; store.set("indkob-me", n); render(); }
+function askWho(){
+  sheet((box, close) => {
+    const row = h("div", { class: "who-pick" });
+    NAMES.forEach(n => row.append(h("button", { type: "button", onclick: () => { setMe(n); close(); } }, n)));
+    box.append(h("h3", null, "Hvem er du?"), h("p", { class: "hint" }, "Så kan I se, hvem der har skrevet varerne på. Kan ændres under menuen."), row);
+  });
+}
+$("menuBtn").addEventListener("click", openMenu);
+
+/* ---------- toast ---------- */
+let toastEl = null, toastTimer = null;
+function toast(msg, actionLabel, action){
+  if (toastEl) toastEl.remove(); clearTimeout(toastTimer);
+  toastEl = h("div", { class: "toast" + (actionLabel ? "" : " plain"), role: "status" }, h("span", null, msg),
+    actionLabel ? h("button", { onclick: () => { toastEl.remove(); toastEl = null; action(); } }, actionLabel) : null);
+  document.body.append(toastEl);
+  toastTimer = setTimeout(() => { if (toastEl){ toastEl.remove(); toastEl = null; } }, actionLabel ? 7000 : 3500);
+}
+
+/* ---------- wake lock ---------- */
+let wakeLock = null, wantWake = store.get("indkob-wake") === "1";
+async function applyWake(){
+  const b = $("wakeBtn");
+  if (wantWake && document.visibilityState === "visible"){
+    try { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); }
+    catch(e){ wantWake = false; toast("Skærmen kan ikke holdes tændt her."); }
+  } else if (!wantWake && wakeLock){ try { await wakeLock.release(); } catch(e){} wakeLock = null; }
+  b.setAttribute("aria-pressed", wantWake ? "true" : "false");
+  b.title = wantWake ? "Skærmen holdes tændt" : "Hold skærmen tændt";
+}
+if ("wakeLock" in navigator){
+  $("wakeBtn").classList.remove("hidden");
+  $("wakeBtn").addEventListener("click", () => {
+    wantWake = !wantWake; store.set("indkob-wake", wantWake ? "1" : "0");
+    toast(wantWake ? "Skærmen holdes tændt, mens listen er åben" : "Skærmen må gå i dvale igen");
+    applyWake();
+  });
+}
+
+/* ---------- gate & boot ---------- */
+function showGate(msg){
+  $("app").classList.add("hidden"); $("addbar").classList.add("hidden"); $("gate").classList.remove("hidden");
+  $("sub").textContent = "";
+  if (msg) $("gateMsg").textContent = msg;
+}
+$("gateBtn").addEventListener("click", () => {
+  const v = $("gateInput").value.trim();
+  const code = v.includes("#") ? v.split("#").pop() : v;
+  if (!/^[A-Za-z0-9_-]{16,}$/.test(code)) { $("gateMsg").textContent = "Det ligner ikke en gyldig kode."; return; }
+  store.set("indkob-secret", code); location.hash = code; location.reload();
+});
+
+function boot(){
+  if (!SECRET) { showGate(); return; }
+  if (!window.supabase) { $("sub").textContent = "Kunne ikke indlæse. Tjek forbindelsen og genindlæs."; return; }
+  sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  $("addbar").classList.remove("hidden");
+  load().then(() => { if (!me) askWho(); });
+  connectLive();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible"){ load(); if (wantWake) applyWake(); }
+  });
+  setInterval(() => { if (document.visibilityState === "visible" && !live) load(); }, 20000);
+  if (wantWake) applyWake();
+}
+boot();
+})();
+</script>
+</body>
+</html>

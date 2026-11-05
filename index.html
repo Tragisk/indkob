@@ -270,14 +270,9 @@ const svgCheck = () => { const s = document.createElementNS("http://www.w3.org/2
 const keyOf = s => (s || "").trim().replace(/\s+/g, " ").toLowerCase();
 
 /* ---------- secret ---------- */
-function readSecret(){
-  const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, "")).trim();
-  if (/^[A-Za-z0-9_-]{16,}$/.test(fromHash)) { store.set("indkob-secret", fromHash); return fromHash; }
-  const saved = store.get("indkob-secret");
-  if (saved) { history.replaceState(null, "", "#" + saved); return saved; }
-  return null;
-}
-let SECRET = readSecret();
+// Ingen kode længere: serveren bruger altid jeres fælles liste. Gamle links med #kode virker stadig.
+const SECRET = "";
+if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 let me = store.get("indkob-me");
 
 /* ---------- state ---------- */
@@ -324,8 +319,7 @@ async function sha(s){
 }
 async function connectLive(){
   try {
-    const name = "indkob-" + (await sha(SECRET)).slice(0, 24);
-    channel = sb.channel(name, { config: { broadcast: { self: false } } });
+    channel = sb.channel("indkob-faelles", { config: { broadcast: { self: false } } });
     channel.on("broadcast", { event: "changed" }, scheduleReload);
     channel.subscribe(status => { live = status === "SUBSCRIBED"; renderSub(); if (live) scheduleReload(); });
   } catch(e){ live = false; renderSub(); }
@@ -595,13 +589,13 @@ function openMenu(){
       h("p", { class: "hint" }, "Andet ligger altid sidst og kan ikke slettes."),
       h("label", null, "Del listen"),
       h("button", { class: "btn ghost", type: "button", onclick: async () => {
-        const url = location.origin + location.pathname + "#" + SECRET;
+        const url = location.origin + location.pathname;
         try {
           if (navigator.share) await navigator.share({ title: "Indkøb", url });
           else { await navigator.clipboard.writeText(url); toast("Link kopieret"); }
         } catch(e){}
       } }, "Del eller kopiér link"),
-      h("p", { class: "hint" }, "Alle med linket kan se og rette listen. Del det kun med Louise."),
+      h("p", { class: "hint" }, "Alle med adressen kan se og rette listen."),
       h("div", { class: "sheet-actions" }, h("button", { class: "btn ghost", type: "button", onclick: close }, "Luk"))
     );
   });
@@ -660,7 +654,6 @@ $("gateBtn").addEventListener("click", () => {
 });
 
 function boot(){
-  if (!SECRET) { showGate(); return; }
   if (!window.supabase) { $("sub").textContent = "Kunne ikke indlæse. Tjek forbindelsen og genindlæs."; return; }
   sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
   $("addbar").classList.remove("hidden");
